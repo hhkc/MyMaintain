@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jrh.dao.ProductDao">
+     
+    <resultMap type="com.jrh.pojo.Product" id="returnListProduct">
+    	<result property="lot_id" column="lot_id"/>
+    	<result property="instance_id" column="instance_id"/>
+    	<result property="qty1" column="qty1"/>
+    	<result property="instance_desc" column="instance_desc"/>
+    	<result property="created_timestamp" column="created_timestamp"/>
+    </resultMap>
+    <select id="getAllWorkInProducts" 
+        resultMap="returnListProduct" >     
+        select l.lot_id,n.instance_id,l.qty1,n2.instance_desc,l.lot_status,l.created_timestamp from lot l,named_object n,named_object n2 where l.lot_status in ('RUNNING','WAITING','HOLD','DISPATCH') and n.instance_rrn=l.task_order_rrn and n2.instance_rrn=l.operation_rrn order by n.instance_id 
+
+	 </select>
+	 
+	 <resultMap type="com.jrh.pojo.EPIMaterialNew" id="returnListEPIMaterialNew">
+    	<result property="QL_SPEC_NO" column="QL_SPEC_NO"/>
+    	<result property="CUSTOMER_NAME" column="CUSTOMER_NAME"/>
+    	<result property="CUSTOMER_PART_NO" column="CUSTOMER_PART_NO"/>
+    	<result property="EPILAYER_TEXTURE" column="EPILAYER_TEXTURE"/>
+    	<result property="EPI_TEXTURE" column="EPI_TEXTURE"/>
+    </resultMap>
+    
+    <select id="getDataOfEPIMaterialNew" resultMap="returnListEPIMaterialNew">
+    	select v.QL_SPEC_NO,v.CUSTOMER_NAME,v.CUSTOMER_PART_NO,v.EPILAYER_TEXTURE,v.EPI_TEXTURE from v_epi_material_new v 
+    </select>
+    
+    <resultMap type="com.jrh.pojo.EPIStoreInfo" id="returnListEPIStoreInfo">
+    	<result property="LOT_ID" column="LOT_ID"/>
+    	<result property="SUB_ID" column="SUB_ID"/>
+    	<result property="SUB_QTY" column="SUB_QTY"/>
+    	<result property="STATUS" column="STATUS"/>
+    </resultMap>
+    
+    <select id="getErrorStoreInfo" resultMap="returnListEPIStoreInfo">
+    	select wfsd.lot_id,wfsd.sub_id,wfsd.sub_qty,wfsd.status from wait_for_store_detail wfsd where wfsd.sub_id in (select imd.sub_id from inventory_material_detail imd) and wfsd.status='WAIT4STORE'
+    </select>
+    
+    <!-- 查询规格书数据 -->
+      <resultMap type="com.jrh.pojo.TechnologySpecification" id="returnListTechnologySpecification">
+    	<result property="EPILAYER_TEXTURE" column="EPILAYER_TEXTURE"/>
+    	<result property="EPI_CARRIER" column="EPI_CARRIER"/>
+    	<result property="instance_id" column="instance_id"/>
+    </resultMap>
+    
+    <select id="getTechnologySpecification" resultMap="returnListTechnologySpecification">
+    	select ts.epi_carrier as EPI_CARRIER,ts.epilayer_texture as EPILAYER_TEXTURE,n.instance_id as instance_id from TECHNOLOGY_SPECIFICATION ts,named_object n where n.instance_rrn=ts.pn_rrn
+    </select>
+    
+</mapper>
